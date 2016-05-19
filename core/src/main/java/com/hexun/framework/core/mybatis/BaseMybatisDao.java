@@ -20,7 +20,7 @@ import org.mybatis.spring.support.SqlSessionDaoSupport;
 import com.hexun.framework.core.page.MysqlDialect;
 import com.hexun.framework.core.page.Page;
 
-public class BaseMybatisDao extends SqlSessionDaoSupport  {
+public class BaseMybatisDao<T> extends SqlSessionDaoSupport  {
 
 	protected final Log logger = LogFactory.getLog(BaseMybatisDao.class);
 	 @Resource
@@ -28,7 +28,7 @@ public class BaseMybatisDao extends SqlSessionDaoSupport  {
         super.setSqlSessionFactory(sqlSessionFactory);
      }
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public Page<?> findByPageBySqlId(String sqlId,
+	public Page<T> findByPageBySqlId(String sqlId,
 			Map<String, Object> params, Integer pageNo, Integer pageSize) {
 		
 		pageNo = null == pageNo? 1 : pageNo ;
@@ -54,9 +54,7 @@ public class BaseMybatisDao extends SqlSessionDaoSupport  {
 				getPreparedStatement(boundSql.getSql(), 
 										boundSql.getParameterMappings(),
 											params ,
-												conn,
-												//分页不查所有,在当前页基础上 + pageSize 的平方
-												0,pageNo * pageSize + pageSize * pageSize);
+												conn);
 			ps.execute();
 			ResultSet set = ps.getResultSet();
 		
@@ -78,7 +76,7 @@ public class BaseMybatisDao extends SqlSessionDaoSupport  {
 	 * @return
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public Page<?> findByPage(String sqlId,String countSqlId,
+	public Page<T> findByPage(String sqlId,String countSqlId,
 			Map<String, Object> params, Integer pageNo, Integer pageSize) {
 		
 		pageNo = null == pageNo? 1 : pageNo ;
@@ -107,9 +105,7 @@ public class BaseMybatisDao extends SqlSessionDaoSupport  {
 				getPreparedStatement(countSql.getSql(), 
 											boundSql.getParameterMappings(),
 													params ,
-														conn,
-														//分页不查所有,在当前页基础上 + pageSize 的平方
-														0,pageNo * pageSize + pageSize * pageSize);
+														conn);
 			ps.execute();
 			ResultSet set = ps.getResultSet();
 		
@@ -125,13 +121,13 @@ public class BaseMybatisDao extends SqlSessionDaoSupport  {
 	
 	
 	public PreparedStatement getPreparedStatement(String sql,List<ParameterMapping> parameterMappingList,
-			Map<String ,Object> params, Connection conn,Integer begin,Integer size) throws SQLException {
+			Map<String ,Object> params, Connection conn) throws SQLException {
 			/**
 			 * 分页根据数据库分页
 			 */
 			MysqlDialect o = new MysqlDialect();
 			
-			PreparedStatement ps=conn.prepareStatement(o.getCountSqlString(sql,begin,size));
+			PreparedStatement ps=conn.prepareStatement(o.getCountSqlString(sql));
 			int index=1;
 			for(int i = 0; i < parameterMappingList.size(); i++) {
 				ps.setObject(index++, params.get(parameterMappingList.get(i).getProperty()));

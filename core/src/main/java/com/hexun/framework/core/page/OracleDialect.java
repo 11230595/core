@@ -29,7 +29,7 @@ public class OracleDialect implements Dialect {
 		return pagingSelect.toString();
 	}
 
-	public String getCountSqlString(String sql,Integer begin,Integer size) {
+	public String getCountSqlString(String sql) {
 		sql = trim(sql);
 		StringBuffer sb = new StringBuffer(sql.length() + 10);
 		sb.append("SELECT COUNT(1) AS " + RS_COLUMN + " FROM  ( ");

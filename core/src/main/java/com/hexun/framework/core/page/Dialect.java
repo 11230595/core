@@ -20,6 +20,6 @@ public interface Dialect {
      * @param sql 原始SQL
      * @return 拼装好的SQL
      */
-    public String getCountSqlString(String sql,Integer begin,Integer size);
+    public String getCountSqlString(String sql);
 }
 
