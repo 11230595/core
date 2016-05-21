@@ -1,6 +1,5 @@
 package com.hexun.framework.core.redis;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import redis.clients.jedis.Jedis;
@@ -20,12 +19,7 @@ public class RedisList {
 			pool = RedisConfig.getPool(); // 获取连接池
 			jedis = pool.getResource(); // 获取redis对象
 			
-			List<String> valueList = new ArrayList<String>();
-			for(String value : values){
-				valueList.add(value);
-			}
-			
-			statusCode = jedis.lpush(key, valueList.toArray(new String[valueList.size()]));	//保存成list
+			statusCode = jedis.lpush(key, values);	//保存成list
 		} catch (Exception e) {
 			pool.returnBrokenResource(jedis);// 释放redis对象
 			e.printStackTrace();

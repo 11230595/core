@@ -12,6 +12,7 @@ public class RedisTest {
 	private static String key1 = "zhou01";
 	private static String key2 = "zhou02";
 	private static String keyList = "keyList";
+	private static String keySet = "keySet";
 	
 	/**
 	 * @param args
@@ -29,12 +30,12 @@ public class RedisTest {
 		}*/
 		//System.out.println(lpush()); //list
 		
-		System.out.println(llen()); //list的长度
-		List<String> values = sort();
+		//System.out.println(llen()); //list的长度
+		/*List<String> values = sort();
 		for(String value : values){
 			System.out.println(value);
-		}
-		
+		}*/
+		System.out.println(sadd());
 	}
 	
 	//保存 成功返回OK
@@ -80,5 +81,11 @@ public class RedisTest {
 	public static List<String> sort(){
 		List<String> list = RedisUtils.sort(keyList);
 		return list;
+	}
+	
+	//存储为list，返回存储成功的个数
+	public static Long sadd(){
+		Long statusCode = RedisUtils.sadd(keySet, "v01","v02","v03","v04","v05","v06");
+		return statusCode;
 	}
 }

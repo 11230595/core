@@ -1,6 +1,5 @@
 package com.hexun.framework.core.redis;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import redis.clients.jedis.Jedis;
@@ -88,13 +87,7 @@ public class RedisUtils extends RedisList {
 		try {
 			pool = RedisConfig.getPool(); // 获取连接池
 			jedis = pool.getResource(); // 获取redis对象
-			
-			List<String> keyList = new ArrayList<String>();
-			for(String key : keys){
-				keyList.add(key);
-			}
-			
-			statusCode = jedis.del(keyList.toArray(new String[keyList.size()])); // 删除数据，可以同时删除多个
+			statusCode = jedis.del(keys); // 删除数据，可以同时删除多个
 		} catch (Exception e) {
 			pool.returnBrokenResource(jedis);// 释放redis对象
 			e.printStackTrace();
@@ -164,13 +157,7 @@ public class RedisUtils extends RedisList {
 		try {
 			pool = RedisConfig.getPool(); // 获取连接池
 			jedis = pool.getResource(); // 获取redis对象
-			
-			List<String> keyValueList = new ArrayList<String>();
-			for(String keyValue : keysValues){
-				keyValueList.add(keyValue);
-			}
-			
-			statusCode = jedis.mset(keyValueList.toArray(new String[keyValueList.size()]));	//插入多个key.value
+			statusCode = jedis.mset(keysValues);	//插入多个key.value
 		} catch (Exception e) {
 			pool.returnBrokenResource(jedis);// 释放redis对象
 			e.printStackTrace();
@@ -193,13 +180,7 @@ public class RedisUtils extends RedisList {
 		try {
 			pool = RedisConfig.getPool(); // 获取连接池
 			jedis = pool.getResource(); // 获取redis对象
-			
-			List<String> keyList = new ArrayList<String>();
-			for(String key : keys){
-				keyList.add(key);
-			}
-			
-			results = jedis.mget(keyList.toArray(new String[keyList.size()]));	//插入多个key.value
+			results = jedis.mget(keys);	//插入多个key.value
 		} catch (Exception e) {
 			pool.returnBrokenResource(jedis);// 释放redis对象
 			e.printStackTrace();
@@ -209,5 +190,29 @@ public class RedisUtils extends RedisList {
 		}
 
 		return results;
+	}
+	/**
+	 * 保存set
+	 * @param key
+	 * @param members
+	 * @return
+	 */
+	public static Long sadd(String key,String... members){
+		JedisPool pool = null;
+		Jedis jedis = null;
+		Long statusCode = 0L;
+		try {
+			pool = RedisConfig.getPool(); // 获取连接池
+			jedis = pool.getResource(); // 获取redis对象
+			statusCode = jedis.sadd(key, members);	//保存成set
+		} catch (Exception e) {
+			pool.returnBrokenResource(jedis);// 释放redis对象
+			e.printStackTrace();
+		} finally {
+			// 返还到连接池
+			RedisConfig.returnResource(pool, jedis);
+		}
+
+		return statusCode;
 	}
 }
