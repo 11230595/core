@@ -7,14 +7,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.ListModel;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.hexun.framework.core.page.Page;
 
 /**
  * 测试
+ * 改类基本上等同于API
+ * 所有方法均可使用RedisUtils类调用
  * @author zhoudong
  *
  */

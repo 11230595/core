@@ -1,5 +1,7 @@
 package com.hexun.framework.core.redis;
 
+import com.hexun.framework.core.properties.RedisPropertiesUtils;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -29,6 +31,7 @@ public class RedisConfig {
             //在borrow一个jedis实例时，是否提前进行validate操作；如果为true，则得到的jedis实例均是可用的；  
             config.setTestOnBorrow(true);
             pool = new JedisPool(config, "127.0.0.1", 6379);
+            //pool = new JedisPool(config, RedisPropertiesUtils.getString("redis.url"), RedisPropertiesUtils.getInt("redis.port"));
         }
         return pool;
     }
