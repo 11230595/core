@@ -1,10 +1,16 @@
 package com.hexun.framework.core.redis;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.ListModel;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.hexun.framework.core.page.Page;
 
 /**
@@ -39,7 +45,7 @@ public class RedisTest {
 			System.out.println(value);
 		}*/
 		///////////////////////////////////////////////list///////////////////////////////////////////
-		//System.out.println(lpush()); //list
+		System.out.println(lpush()); //list
 		
 		//System.out.println(llen()); //list的长度
 		/*List<String> values = sort();
@@ -144,8 +150,32 @@ public class RedisTest {
 	
 	//存储为list，返回存储成功的个数
 	public static Long lpush(){
-		Long statusCode = RedisUtils.lpush(keyList, "v01","v02","v03","v04","v05","v06");
-		//RedisUtils.lpush(keyList, new String[]{"v01","v02","v03","v04","v05","v06"});
+		//方式一
+		//Long statusCode = RedisUtils.lpush(keyList, "v01","v02","v03","v04","v05","v06");
+		
+		//方式二
+		//Long statusCode = RedisUtils.lpush(keyList, new String[]{"v01","v02","v03","v04","v05","v06"});
+
+		//方式三
+		List<String> list = new ArrayList<String>();
+		list.add("a01");
+		list.add("a02");
+		list.add("a03");
+		list.add("a04");
+		list.add("a05");
+		list.add("a06");
+		list.add("a07");
+		list.add("a08");
+		list.add("a09");
+		list.add("a10");
+		
+		Long statusCode = RedisUtils.lpush("list", list);
+		
+		/*//如果list的泛型非string，推荐先转成json 然后转成数组进行保存
+		String jsonString = JSON.toJSONString(list);
+		JSONArray jsonArray = JSONArray.parseArray(jsonString);
+		String[] strs = jsonArray.toArray(new String[jsonArray.size()]);
+		Long statusCode = RedisUtils.lpush("list_to_array", strs);*/
 		return statusCode;
 	}
 	//数组长度
@@ -178,8 +208,24 @@ public class RedisTest {
 	//----------------------------------set start------------------------------------------------------
 	//存储为set，返回存储成功的个数
 	public static Long sadd(){
+		//方式1
 		//Long statusCode = RedisUtils.sadd(keySet, "v01","v02","v03","v04","v05","v06");
-		Long statusCode = RedisUtils.sadd(keySet1, "v03","v04","v06","v07","v08","v09");
+		//Long statusCode = RedisUtils.sadd(keySet1, "v03","v04","v06","v07","v08","v09");
+		
+		//方式2
+		Set<String> set = new HashSet<String>();
+		set.add("set01");
+		set.add("set02");
+		set.add("set03");
+		set.add("set04");
+		set.add("set05");
+		set.add("set06");
+		set.add("set07");
+		set.add("set08");
+		set.add("set09");
+		set.add("set10");
+		Long statusCode = RedisUtils.sadd("set",set);
+		
 		return statusCode;
 	}
 	//set中是否包含某值

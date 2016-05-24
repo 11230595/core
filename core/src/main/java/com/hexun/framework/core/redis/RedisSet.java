@@ -34,6 +34,32 @@ public class RedisSet extends RedisHash {
 
 		return statusCode;
 	}
+	
+	/**
+	 * 保存set
+	 * @param key
+	 * @param members
+	 * @return
+	 */
+	public static Long sadd(String key,Set<String> set){
+		JedisPool pool = null;
+		Jedis jedis = null;
+		Long statusCode = 0L;
+		try {
+			pool = RedisConfig.getPool(); // 获取连接池
+			jedis = pool.getResource(); // 获取redis对象
+			statusCode = jedis.sadd(key, set.toArray(new String[set.size()]));	//保存成set
+		} catch (Exception e) {
+			pool.returnBrokenResource(jedis);// 释放redis对象
+			e.printStackTrace();
+		} finally {
+			// 返还到连接池
+			RedisConfig.returnResource(pool, jedis);
+		}
+
+		return statusCode;
+	}
+	
 	/**
 	 * 判断set中是否包含某值
 	 * @param key

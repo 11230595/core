@@ -34,6 +34,31 @@ public class RedisList extends RedisSet {
 
 		return statusCode;
 	}
+	
+	/**
+	 * 保存list
+	 * @return Status code reply
+	 */
+	public static Long lpush(String key,List<String> list) {
+		JedisPool pool = null;
+		Jedis jedis = null;
+		Long statusCode = 0L;
+		try {
+			pool = RedisConfig.getPool(); // 获取连接池
+			jedis = pool.getResource(); // 获取redis对象
+			
+			statusCode = jedis.lpush(key, list.toArray(new String[list.size()]));	//保存成list
+		} catch (Exception e) {
+			pool.returnBrokenResource(jedis);// 释放redis对象
+			e.printStackTrace();
+		} finally {
+			// 返还到连接池
+			RedisConfig.returnResource(pool, jedis);
+		}
+
+		return statusCode;
+	}
+	
 	/**
 	 * 数组的长度
 	 * @param key
