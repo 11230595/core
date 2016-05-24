@@ -15,6 +15,7 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
+import com.hexun.framework.core.exception.MyException;
 import com.hexun.framework.core.properties.PropertiesUtils;
 
 /**
@@ -99,10 +100,19 @@ public class DefaultBaseController implements ServletConfigAware {
 	 * @author zhoudong
 	 * @return
 	 */
-	protected ModelAndView getModelAndView(String viewName,String modelKey,Object modelValue,String modelKey1,Object modelValue1) {
+	protected ModelAndView getModelAndView(String viewName,Object... modelKeyValues) {
 		ModelAndView mav = commModelAndView(viewName);
-		mav.addObject(modelKey, modelValue);
-		mav.addObject(modelKey1, modelValue1);
+		if(modelKeyValues.length>0 && modelKeyValues.length%2!=0){
+			try {
+				throw new MyException("参数必须是成对出现的！");  //抛此异常 主要为了提示并结束程序，所以直接在这里处理
+			} catch (MyException e) {
+				e.printStackTrace();
+			}
+		}
+		for(int i=0; i<modelKeyValues.length; i++){
+			mav.addObject(String.valueOf(modelKeyValues[i]), modelKeyValues[i+1]);
+			i++;
+		}
 		return mav;
 	}
 	/**

@@ -11,7 +11,7 @@ import com.hexun.framework.core.page.Page;
 
 /**
  * 测试
- * 改类基本上等同于API
+ * 本类基本上等同于API
  * 所有方法均可使用RedisUtils类调用
  * @author zhoudong
  *
