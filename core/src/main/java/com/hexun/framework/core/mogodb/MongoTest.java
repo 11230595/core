@@ -63,4 +63,9 @@ public class MongoTest {
 		return resultMap;
 	}*/
 	
+	
+	public static void main(String[] args) {
+		MongoDBUtils mongoDBUtils = new MongoDBUtils();
+	}
+	
 }

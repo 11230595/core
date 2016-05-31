@@ -28,21 +28,12 @@
 		<logback.version>1.0.13</logback.version>
 		<slf4j.version>1.7.5</slf4j.version>
 
-		<!-- Test -->
-		<junit.version>4.11</junit.version>
 		<!-- jackson -->
 		<jackson.version>1.9.13</jackson.version>
 
 	</properties>
 	
 	<dependencies>
-	<dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.11</version>
-      <!-- 表示开发的时候引入，发布的时候不会加载此包 -->
-      <scope>test</scope>
-    </dependency>
     <!-- spring核心包 -->
     <dependency>
       <groupId>org.springframework</groupId>
@@ -151,18 +142,6 @@
       <artifactId>mysql-connector-java</artifactId>
       <version>5.1.30</version>
     </dependency>
-    <!-- 导入dbcp的jar包，用来在applicationContext.xml中配置数据库 -->
-    <dependency>
-      <groupId>commons-dbcp</groupId>
-      <artifactId>commons-dbcp</artifactId>
-      <version>1.2.2</version>
-    </dependency>
-    <!-- JSTL标签类 -->
-    <dependency>
-      <groupId>jstl</groupId>
-      <artifactId>jstl</artifactId>
-      <version>1.2</version>
-    </dependency>
     <!-- 日志文件管理包 -->
     <!-- log start -->
     <dependency>
@@ -224,20 +203,6 @@
 			<version>1.2.7</version>
 		</dependency>
 		
-		
-        <!-- c3p0 -->
-        <dependency>
-            <groupId>c3p0</groupId>
-            <artifactId>c3p0</artifactId>
-            <version>0.9.1.2</version>
-        </dependency>
-        <!-- freemarker -->
-        <dependency>
-		    <groupId>org.freemarker</groupId>
-		    <artifactId>freemarker</artifactId>
-		    <version>2.3.21</version>
-		</dependency>
-        
         <dependency>
 		    <groupId>org.aspectj</groupId>
 		    <artifactId>aspectjweaver</artifactId>
@@ -287,4 +252,19 @@
             <version>1.8.5</version>
         </dependency> 
 	</dependencies>	
+	
+	
+	
+	<distributionManagement>
+	    <repository>
+	       <id>releases</id>
+	       <name>Nexus Release Repository</name>
+	       <url>http://10.0.201.196:8081/nexus/content/repositories/releases/</url>
+	   </repository>
+	   <snapshotRepository>
+	       <id>snapshots</id>
+	       <name>Nexus Snapshot Repository</name>
+	       <url>http://10.0.201.196:8081/nexus/content/repositories/snapshots/</url>
+	   </snapshotRepository>
+	</distributionManagement>
 </project>
