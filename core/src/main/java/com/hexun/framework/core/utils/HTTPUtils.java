@@ -87,6 +87,7 @@ public class HTTPUtils {
             for(Map.Entry<String, Object> entry : param.entrySet()) {
             	sb.append(entry.getKey()).append("=").append(entry.getValue()).append("&");
             }
+            sb.deleteCharAt(sb.length()-1);
             
             // 发送请求参数
             out.print(sb);

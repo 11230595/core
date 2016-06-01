@@ -1,5 +1,7 @@
 package com.hexun.framework.core.controller;
 
+import java.util.Collections;
+import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -34,9 +36,6 @@ public class DefaultBaseController implements ServletConfigAware {
 
 	protected static final int PAGE_SIZE = 10; // 每页的记录数
 	protected static final int PAGE_NO = 1; // 当前页号
-
-	//结果集返回Map
-	protected Map<String,Object> resultMap = new LinkedHashMap<String, Object>();
 	
 	/**
 	 * 获取应用绝对路径

@@ -652,4 +652,12 @@ public class DateUtils {
         long time = Math.abs(date.getTime() - otherDate.getTime());  
         return (int)time/(24 * 60 * 60 * 1000);  
     }
+    /**
+     * 获取时间
+     * @param date
+     * @return
+     */
+    public static String getDateAndTime(Date date){
+    	return DateToString(date, DateStyle.YYYY_MM_DD_HH_MM_SS);
+    }
 }
