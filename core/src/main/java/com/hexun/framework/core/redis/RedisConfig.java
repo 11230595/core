@@ -44,7 +44,8 @@ public class RedisConfig {
      * @param pool  
      * @param redis 
      */  
-    public static void returnResource(JedisPool pool, Jedis redis) {
+    @SuppressWarnings("deprecation")
+	public static void returnResource(JedisPool pool, Jedis redis) {
         if (redis != null) {
             pool.returnResource(redis);
         }
