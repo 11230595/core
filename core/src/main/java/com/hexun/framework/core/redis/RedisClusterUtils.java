@@ -13,17 +13,45 @@ import com.hexun.framework.core.page.Page;
  * @author zhoudong
  *
  */
-public class RedisClusterUtils extends RedisClusterConfig {
+public class RedisClusterUtils {
 
 	/**
-	 * 获取jedisCluster对象
+	 * 获取jedisCluster对象 从连接池获取
 	 * 
 	 * @return
 	 */
 	public static JedisCluster getJc() {
-		return RedisClusterConfig.getJc();
+		return RedisClusterPool.getJcByPool();
 	}
+	
+	public static void returnJcPool(JedisCluster jc){
+		RedisClusterPool.returnJcToPool(jc);
+	}
+	
 
+	/**
+	 * 获取数据
+	 * 此方法仅用于多线程测试
+	 * @param key
+	 * @return
+	 */
+	public static String getTest(String key) {
+		
+		try {
+			Thread.sleep(1000);
+			if(key.startsWith("Thread-1"))
+				Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		JedisCluster jc = getJc();
+		String result = jc.get(key); // 获取数据
+		returnJcPool(jc);
+		return result;
+	}
+	
 	/**
 	 * 获取数据
 	 * 
@@ -31,15 +59,10 @@ public class RedisClusterUtils extends RedisClusterConfig {
 	 * @return
 	 */
 	public static String get(String key) {
-		if (key.equals("Thread-10")) {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		return getJc().get(key); // 获取数据
+		JedisCluster jc = getJc();
+		String result = jc.get(key); // 获取数据
+		returnJcPool(jc);
+		return result;
 	}
 
 	/**
@@ -50,7 +73,10 @@ public class RedisClusterUtils extends RedisClusterConfig {
 	 * @return Status code reply
 	 */
 	public static String set(String key, String value) {
-		return getJc().set(key, value); // 存储数据
+		JedisCluster jc = getJc();
+		String result = jc.set(key, value); // 存储数据
+		returnJcPool(jc);
+		return result;
 	}
 
 	/**
@@ -71,17 +97,10 @@ public class RedisClusterUtils extends RedisClusterConfig {
 	 * @return
 	 */
 	public static Long del(String... keys) {
-		return getJc().del(keys); // 删除数据，可以同时删除多个;
-	}
-
-	/**
-	 * 清空数据
-	 * 
-	 * @return Status code reply
-	 */
-	@SuppressWarnings("deprecation")
-	public static String flushDB() {
-		return getJc().flushDB(); // 清空数据;
+		JedisCluster jc = getJc();
+		Long result = jc.del(keys);// 删除数据，可以同时删除多个;
+		returnJcPool(jc);
+		return  result;
 	}
 
 	/**
@@ -90,7 +109,10 @@ public class RedisClusterUtils extends RedisClusterConfig {
 	 * @return Status code reply
 	 */
 	public static Boolean exists(String key) {
-		return getJc().exists(key); // 判断key是否存在;
+		JedisCluster jc = getJc();
+		Boolean result = jc.exists(key); // 判断key是否存在;
+		returnJcPool(jc);
+		return result;
 	}
 
 	/**
@@ -99,7 +121,10 @@ public class RedisClusterUtils extends RedisClusterConfig {
 	 * @return Status code reply
 	 */
 	public static String mset(String... keysValues) {
-		return getJc().mset(keysValues); // 插入多个key.value;
+		JedisCluster jc = getJc();
+		String result = jc.mset(keysValues); // 插入多个key.value;
+		returnJcPool(jc);
+		return result;
 	}
 
 	/**
@@ -108,7 +133,10 @@ public class RedisClusterUtils extends RedisClusterConfig {
 	 * @return Status code reply
 	 */
 	public static List<String> mget(String... keys) {
-		return getJc().mget(keys); // 插入多个key.value;
+		JedisCluster jc = getJc();
+		List<String> result = jc.mget(keys); // 插入多个key.value;
+		returnJcPool(jc);
+		return result;
 	}
 
 	/**
@@ -120,7 +148,10 @@ public class RedisClusterUtils extends RedisClusterConfig {
 	 * @return
 	 */
 	public static String setex(String key, int seconds, String value) {
-		return getJc().setex(key, seconds, value); // 保存数据，指定时间后到期;
+		JedisCluster jc = getJc();
+		String result = jc.setex(key, seconds, value); // 保存数据，指定时间后到期;
+		returnJcPool(jc);
+		return result;
 	}
 
 	// ---------------------------list----------------------------------
@@ -130,7 +161,10 @@ public class RedisClusterUtils extends RedisClusterConfig {
 	 * @return Status code reply
 	 */
 	public static Long lpush(String key, String... values) {
-		return getJc().lpush(key, values); // 保存成list;
+		JedisCluster jc = getJc();
+		Long result = jc.lpush(key, values); // 保存成list;
+		returnJcPool(jc);
+		return result;
 	}
 
 	/**
@@ -139,7 +173,10 @@ public class RedisClusterUtils extends RedisClusterConfig {
 	 * @return Status code reply
 	 */
 	public static Long lpush(String key, List<String> list) {
-		return getJc().lpush(key, list.toArray(new String[list.size()])); // 保存成list;
+		JedisCluster jc = getJc();
+		Long result = jc.lpush(key, list.toArray(new String[list.size()])); // 保存成list;
+		returnJcPool(jc);
+		return result;
 	}
 
 	/**
@@ -149,7 +186,10 @@ public class RedisClusterUtils extends RedisClusterConfig {
 	 * @return
 	 */
 	public static Long llen(String key) {
-		return getJc().llen(key); // 查询数组的长度;
+		JedisCluster jc = getJc();
+		Long result = jc.llen(key); // 查询数组的长度;
+		returnJcPool(jc);
+		return result;
 	}
 
 	/**
@@ -163,14 +203,16 @@ public class RedisClusterUtils extends RedisClusterConfig {
 	public static List<String> sort(String key,
 			SortingParams... sortingParameters) {
 		List<String> results = null;
+		JedisCluster jc = getJc();
 		if (sortingParameters.length > 0) {
 			sortingParameters[0].alpha();
-			results = getJc().sort(key, sortingParameters[0]); // 排序，自定义排序规则
+			results = jc.sort(key, sortingParameters[0]); // 排序，自定义排序规则
 		} else {
 			SortingParams sorting = new SortingParams();
 			sorting.alpha();
-			results = getJc().sort(key, sorting); // 排序，默认是升序
+			results = jc.sort(key, sorting); // 排序，默认是升序
 		}
+		returnJcPool(jc);
 		return results;
 	}
 
@@ -183,7 +225,10 @@ public class RedisClusterUtils extends RedisClusterConfig {
 	 * @return
 	 */
 	public static String lset(String key, long index, String value) {
-		return getJc().lset(key, index, value); // 修改list中的某个值;
+		JedisCluster jc = getJc();
+		String result = jc.lset(key, index, value); // 修改list中的某个值;
+		returnJcPool(jc);
+		return result;
 	}
 
 	/**
@@ -194,7 +239,10 @@ public class RedisClusterUtils extends RedisClusterConfig {
 	 * @return
 	 */
 	public static String lindex(String key, long index) {
-		return getJc().lindex(key, index); // 获取列表执行下标的值;
+		JedisCluster jc = getJc();
+		String result = jc.lindex(key, index); // 获取列表执行下标的值;
+		returnJcPool(jc);
+		return result;
 	}
 
 	/**
@@ -206,7 +254,10 @@ public class RedisClusterUtils extends RedisClusterConfig {
 	 * @return
 	 */
 	public static Long lrem(String key, long count, String value) {
-		return getJc().lrem(key, count, value); // 删除列表指定下标的值;
+		JedisCluster jc = getJc();
+		Long result = jc.lrem(key, count, value); // 删除列表指定下标的值;
+		returnJcPool(jc);
+		return result;
 	}
 
 	/**
@@ -220,7 +271,10 @@ public class RedisClusterUtils extends RedisClusterConfig {
 	 * @return
 	 */
 	public static List<String> lrange(String key, long start, long end) {
-		return getJc().lrange(key, start, end);
+		JedisCluster jc = getJc();
+		List<String> result = jc.lrange(key, start, end); //取指定下范围的值
+		returnJcPool(jc);
+		return result;
 	}
 
 	// ---------------------------------------list end---------------------------------
@@ -232,7 +286,10 @@ public class RedisClusterUtils extends RedisClusterConfig {
 	 * @return
 	 */
 	public static Long sadd(String key,String... members){
-		return getJc().sadd(key, members);	//保存成set;
+		JedisCluster jc = getJc();
+		Long result = jc.sadd(key, members);	//保存成set;
+		returnJcPool(jc);
+		return result;
 	}
 	
 	/**
@@ -242,7 +299,10 @@ public class RedisClusterUtils extends RedisClusterConfig {
 	 * @return
 	 */
 	public static Long sadd(String key,Set<String> set){
-		return getJc().sadd(key, set.toArray(new String[set.size()]));	//保存成set;
+		JedisCluster jc = getJc();
+		Long result = jc.sadd(key, set.toArray(new String[set.size()]));	//保存成set;
+		returnJcPool(jc);
+		return result;
 	}
 	
 	/**
@@ -252,7 +312,10 @@ public class RedisClusterUtils extends RedisClusterConfig {
 	 * @return
 	 */
 	public static Boolean sismember(String key,String member){
-		return getJc().sismember(key, member);	//判断set中是否包含某个值;
+		JedisCluster jc = getJc();
+		Boolean result = jc.sismember(key, member);	//判断set中是否包含某个值;
+		returnJcPool(jc);
+		return result;
 	}
 	/**
 	 * 整个列表的值
@@ -260,7 +323,10 @@ public class RedisClusterUtils extends RedisClusterConfig {
 	 * @return
 	 */
 	public static Set<String> smembers(String key){
-		return getJc().smembers(key);	//判断set中是否包含某个值;
+		JedisCluster jc = getJc();
+		Set<String> result = jc.smembers(key);	//判断set中是否包含某个值;
+		returnJcPool(jc);
+		return result;
 	}
 	/**
 	 * 删除指定元素   返回成功删除的个数
@@ -269,7 +335,10 @@ public class RedisClusterUtils extends RedisClusterConfig {
 	 * @return
 	 */
 	public static Long srem(String key,String... members){
-		return getJc().srem(key, members);//删除指定元素;
+		JedisCluster jc = getJc();
+		Long result = jc.srem(key, members);//删除指定元素;
+		returnJcPool(jc);
+		return result;
 	}
 	/**
 	 * 出栈
@@ -277,7 +346,10 @@ public class RedisClusterUtils extends RedisClusterConfig {
 	 * @return
 	 */
 	public static String spop(String key){
-		return getJc().spop(key);	//插入多个key.value;
+		JedisCluster jc = getJc();
+		String result = jc.spop(key);	//插入多个key.value;
+		returnJcPool(jc);
+		return result;
 	}
 	/**
 	 * 交集
@@ -285,7 +357,10 @@ public class RedisClusterUtils extends RedisClusterConfig {
 	 * @return
 	 */
 	public static Set<String> sinter(String... keys){
-		return getJc().sinter(keys);	//交集;
+		JedisCluster jc = getJc();
+		Set<String> result = jc.sinter(keys);	//交集;
+		returnJcPool(jc);
+		return result;
 	}
 	/**
 	 * 并集
@@ -293,7 +368,10 @@ public class RedisClusterUtils extends RedisClusterConfig {
 	 * @return
 	 */
 	public static Set<String> sunion(String... keys){
-		return getJc().sunion(keys);	//并集;
+		JedisCluster jc = getJc();
+		Set<String> result = jc.sunion(keys);	//并集;
+		returnJcPool(jc);
+		return result;
 	}
 	/**
 	 * 差集
@@ -301,7 +379,10 @@ public class RedisClusterUtils extends RedisClusterConfig {
 	 * @return
 	 */
 	public static Set<String> sdiff(String... keys){
-		return getJc().sdiff(keys);	//并集;
+		JedisCluster jc = getJc();
+		Set<String> result = jc.sdiff(keys);	//并集;
+		returnJcPool(jc);
+		return result;
 	}
 	//------------------------------------set end----------------------------------------
 	
@@ -313,7 +394,10 @@ public class RedisClusterUtils extends RedisClusterConfig {
 	 * @return
 	 */
 	public static String hmset(String key,Map<String,String> hash){
-		return getJc().hmset(key, hash);	//插入hash;
+		JedisCluster jc = getJc();
+		String result = jc.hmset(key, hash);	//插入hash;
+		returnJcPool(jc);
+		return result;
 	}
 	/**
 	 * hash 结构取数据
@@ -322,7 +406,10 @@ public class RedisClusterUtils extends RedisClusterConfig {
 	 * @return
 	 */
 	public static List<String> hmget(String key,String... fields){
-		return getJc().hmget(key, fields);	//从hash取数据，取出的是list的结构;
+		JedisCluster jc = getJc();
+		List<String> result = jc.hmget(key, fields);	//从hash取数据，取出的是list的结构;
+		returnJcPool(jc);
+		return result;
 	}
 	/**
 	 * hash 删除
@@ -331,7 +418,10 @@ public class RedisClusterUtils extends RedisClusterConfig {
 	 * @return
 	 */
 	public static Long hdel(String key,String... fields){
-		return getJc().hdel(key,fields); // 删除数据，可以同时删除多个;
+		JedisCluster jc = getJc();
+		Long result = jc.hdel(key,fields); // 删除数据，可以同时删除多个;
+		returnJcPool(jc);
+		return result;
 	}
 	/**
 	 * 返回一个key下面字段的个数
@@ -339,7 +429,10 @@ public class RedisClusterUtils extends RedisClusterConfig {
 	 * @return
 	 */
 	public static Long hlen(String key){
-		return getJc().hlen(key); //返回一个key下面字段的个数
+		JedisCluster jc = getJc();
+		Long result = jc.hlen(key); //返回一个key下面字段的个数
+		returnJcPool(jc);
+		return result;
 	}
 	/**
 	 * 返回hash对象中的所有key
@@ -347,7 +440,10 @@ public class RedisClusterUtils extends RedisClusterConfig {
 	 * @return
 	 */
 	public static Set<String> hkeys(String key){
-		return getJc().hkeys(key);	//返回map对象中的所有key;
+		JedisCluster jc = getJc();
+		Set<String> result = jc.hkeys(key);	//返回map对象中的所有key;
+		returnJcPool(jc);
+		return result;
 	}
 	/**
 	 * 返回hash对象中的所有value
@@ -355,7 +451,10 @@ public class RedisClusterUtils extends RedisClusterConfig {
 	 * @return
 	 */
 	public static List<String> hvals(String key){
-		return getJc().hvals(key);	//返回hash中所有的value
+		JedisCluster jc = getJc();
+		List<String> result = jc.hvals(key);	//返回hash中所有的value
+		returnJcPool(jc);
+		return result;
 	}
 	
 	/**
@@ -365,7 +464,10 @@ public class RedisClusterUtils extends RedisClusterConfig {
 	 * @return
 	 */
 	public static Boolean hexists(String key,String field){
-		return getJc().hexists(key, field);	//判断hash中是否包含某个值;
+		JedisCluster jc = getJc();
+		Boolean result = jc.hexists(key, field);	//判断hash中是否包含某个值;
+		returnJcPool(jc);
+		return result;
 	}
 	//---------------------------------------------hash end----------------------------------
 	
@@ -382,6 +484,7 @@ public class RedisClusterUtils extends RedisClusterConfig {
 		Page<String> page = new Page<String>();
 		int start = (pageNo - 1) * pageSize;
 
+		JedisCluster jc = getJc();
 		SortingParams sortingParams = new SortingParams();
 		sortingParams.alpha();
 		if ("DESC".equals(sort))
@@ -390,13 +493,15 @@ public class RedisClusterUtils extends RedisClusterConfig {
 			sortingParams.asc();
 		sortingParams.limit(start, pageSize);
 
-		List<String> results = RedisClusterConfig.getJc().sort(key,
+		List<String> results = jc.sort(key,
 				sortingParams);
 		page.setList(results);
 		page.setPageNo(pageNo);
 		page.setPageSize(pageSize);
-		page.setTotalCount(RedisClusterConfig.getJc().llen(key).intValue());
-
+		page.setTotalCount(jc.llen(key).intValue());
+		
+		returnJcPool(jc);
+		
 		return page;
 	}
 
