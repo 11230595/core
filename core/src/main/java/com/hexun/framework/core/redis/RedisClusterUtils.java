@@ -36,9 +36,10 @@ public class RedisClusterUtils {
 	 * @return
 	 */
 	public static String getTest(String key) {
-		/*
-		try {
-			if(key.startsWith("Thread-2") || key.startsWith("Thread-3"))
+		
+		/*try {
+			Thread.sleep(1000);
+			if(key.startsWith("Thread-1"))
 				Thread.sleep(3000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
