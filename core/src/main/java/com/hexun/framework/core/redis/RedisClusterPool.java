@@ -108,7 +108,7 @@ public class RedisClusterPool {
 			}
 			return getJcByPool();
 		}else{
-			wait(200);
+			wait(100);
 			return getJcByPool();
 		}
 	}
