@@ -13,6 +13,7 @@ import redis.clients.jedis.JedisCluster;
 
 import com.hexun.framework.core.exception.MyException;
 import com.hexun.framework.core.properties.RedisPropertiesUtils;
+import com.hexun.framework.core.utils.StringUtils;
 
 /**
  * redis 对象池
@@ -62,6 +63,7 @@ public class RedisClusterPool {
 	 * 初始化jedisClusterPool
 	 */
 	private static void initPool(){
+		System.out.println("线程初始化.......");
 		int createNum = minConn - (freeJcs.size() + usedConn);
 		for(int i=0; i < createNum; i++){
 			try {
@@ -92,8 +94,14 @@ public class RedisClusterPool {
 	/**
 	 * 从连接池中获取jedisCluster对象
 	 * @return
+	 * @throws MyException 
 	 */
-	public static synchronized JedisCluster getJcByPool(){
+	public static synchronized JedisCluster getJcByPool(Integer... is) throws MyException{
+		int count = 0;
+		if(is.length > 0){
+			count = is[0];
+		}
+		
 		JedisCluster jc = null;
 		if(freeJcs.size() > 0){ 					//如果有空闲的链接，直接从连接池里面
 			jc = freeJcs.get(0);
@@ -107,8 +115,10 @@ public class RedisClusterPool {
 				e.printStackTrace();
 			}
 			return getJcByPool();
+		}else if (count < 5){
+			return getJcByPool(count++);
 		}else {
-			return getJcByPool();
+			throw new MyException("暂时没有可用线程池..请稍后再试..");
 		}
 	}
 	/**
@@ -153,6 +163,6 @@ public class RedisClusterPool {
             }  
         };  
 		Timer timer = new Timer();
-		timer.schedule(task, 60 * 1000 * 60 * 24); //每24个小时执行一次 60 * 1000 * 60 * 24
+		timer.schedule(task, 60 * 1000 * 60 * 1); //每1个小时执行一次 60 * 1000 * 60 * 24
 	}
 }

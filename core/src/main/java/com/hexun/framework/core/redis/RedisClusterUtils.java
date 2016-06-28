@@ -7,6 +7,7 @@ import java.util.Set;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.SortingParams;
 
+import com.hexun.framework.core.exception.MyException;
 import com.hexun.framework.core.page.Page;
 /**
  * 使用jedis操作redis集群工具类
@@ -21,7 +22,22 @@ public class RedisClusterUtils {
 	 * @return
 	 */
 	public static JedisCluster getJc() {
-		return RedisClusterPool.getJcByPool();
+		JedisCluster jc = null;
+		try {
+			jc = RedisClusterPool.getJcByPool();
+		} catch (MyException e) {
+			try {
+				Thread.sleep(1000);//如果连接池满了，休息一秒，再连
+				return getJc();
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			} 
+			e.printStackTrace();
+		}
+		if(jc == null){
+			return getJc();
+		}
+		return jc;
 	}
 	
 	public static void returnJcPool(JedisCluster jc){
