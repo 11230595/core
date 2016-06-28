@@ -80,9 +80,6 @@ public class RedisClusterPool {
 	 * @throws MyException 
 	 */
 	private static JedisCluster createJc() throws MyException{
-		if(freeJcs.size() == maxConn){
-			throw new MyException("链接数过多...");
-		}
 		// 只给集群里一个实例就可以
 		Set<HostAndPort> jedisClusterNodes = new HashSet<HostAndPort>();
 		for(int i=0; i<ips.size(); i++){
@@ -96,31 +93,38 @@ public class RedisClusterPool {
 	 * @return
 	 * @throws MyException 
 	 */
-	public static synchronized JedisCluster getJcByPool(Integer... is) throws MyException{
-		int count = 0;
-		if(is.length > 0){
-			count = is[0];
-		}
-		
+	public static synchronized JedisCluster getJcByPool() throws MyException{
 		JedisCluster jc = null;
 		if(freeJcs.size() > 0){ 					//如果有空闲的链接，直接从连接池里面
 			jc = freeJcs.get(0);
 			freeJcs.remove(0);
 			usedConn++;
 			return jc;
-		}else if(freeJcs.size() == 0 && usedConn < maxConn){ //如果已经存在的线程池小于定义的最大线程池，并且没有空闲线程池的情况下，创建一个
+		}else if(freeJcs.size() == 0 && usedConn <= maxConn){ //如果已经存在的线程池小于定义的最大线程池，并且没有空闲线程池的情况下，创建一个
 			try {
 				freeJcs.add(createJc());
 			} catch (MyException e) {
 				e.printStackTrace();
 			}
 			return getJcByPool();
-		}else if (count < 5){
-			return getJcByPool(count++);
-		}else {
-			throw new MyException("暂时没有可用线程池..请稍后再试..");
+		}else{
+			wait(200);
+			return getJcByPool();
 		}
 	}
+	
+	/**
+	 * 使程序等待指定的秒数
+	 * @param seconds
+	 */
+    private static void wait(int seconds){
+        try {
+            Thread.sleep(seconds);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+	
 	/**
 	 * 将jc对象返回到freeJcpool
 	 */

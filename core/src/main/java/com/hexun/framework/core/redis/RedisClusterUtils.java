@@ -26,12 +26,6 @@ public class RedisClusterUtils {
 		try {
 			jc = RedisClusterPool.getJcByPool();
 		} catch (MyException e) {
-			try {
-				Thread.sleep(1000);//如果连接池满了，休息一秒，再连
-				return getJc();
-			} catch (InterruptedException e1) {
-				e1.printStackTrace();
-			} 
 			e.printStackTrace();
 		}
 		if(jc == null){
