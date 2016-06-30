@@ -13,7 +13,6 @@ import redis.clients.jedis.JedisCluster;
 
 import com.hexun.framework.core.exception.MyException;
 import com.hexun.framework.core.properties.RedisPropertiesUtils;
-import com.hexun.framework.core.utils.StringUtils;
 
 /**
  * redis 对象池
@@ -33,6 +32,10 @@ public class RedisClusterPool {
 	 * 使用中的连接数
 	 */
 	private static int usedConn = 0;
+	/**
+	 * 每次创建多少链接放入连接池
+	 */
+	private static int createConn = RedisPropertiesUtils.getInt("redis.cluster.createConn");
 	/**
 	 * redis 集群所在的IP
 	 */
@@ -63,7 +66,7 @@ public class RedisClusterPool {
 	 * 初始化jedisClusterPool
 	 */
 	private static void initPool(){
-		System.out.println("线程初始化.......");
+		System.out.println("init JedisClusterPool.......");
 		int createNum = minConn - (freeJcs.size() + usedConn);
 		for(int i=0; i < createNum; i++){
 			try {
@@ -72,6 +75,7 @@ public class RedisClusterPool {
 				e.printStackTrace();
 			}
 		}
+		System.out.println("init JedisClusterPool end.......");
 	}
 	
 	/**
@@ -80,11 +84,12 @@ public class RedisClusterPool {
 	 * @throws MyException 
 	 */
 	private static JedisCluster createJc() throws MyException{
-		// 只给集群里一个实例就可以
 		Set<HostAndPort> jedisClusterNodes = new HashSet<HostAndPort>();
+		// 只给集群里一个实例就可以
 		for(int i=0; i<ips.size(); i++){
 			jedisClusterNodes.add(new HostAndPort(ips.get(i), Integer.parseInt(ports.get(i))));
 		}
+		
 		return new JedisCluster(jedisClusterNodes);
 	}
 	
@@ -93,24 +98,38 @@ public class RedisClusterPool {
 	 * @return
 	 * @throws MyException 
 	 */
-	public static synchronized JedisCluster getJcByPool() throws MyException{
-		JedisCluster jc = null;
+	public static synchronized JedisCluster getJcByPool(){
 		if(freeJcs.size() > 0){ 					//如果有空闲的链接，直接从连接池里面
-			jc = freeJcs.get(0);
-			freeJcs.remove(0);
-			usedConn++;
-			return jc;
+			return getJcByFreeJedisCluster();
 		}else if(freeJcs.size() == 0 && usedConn <= maxConn){ //如果已经存在的线程池小于定义的最大线程池，并且没有空闲线程池的情况下，创建一个
 			try {
-				freeJcs.add(createJc());
+				for(int i=0; i<createConn; i++)
+					freeJcs.add(createJc());
+				
 			} catch (MyException e) {
 				e.printStackTrace();
 			}
-			return getJcByPool();
+			return getJcByFreeJedisCluster();
 		}else{
-			wait(100);
+			System.out.println("JedisClusterPool full wait!");
+			wait(1);
+			return getJcByFreeJedisCluster();
+		}
+	}
+	
+	/**
+	 * 从空闲的链接池里面取链接
+	 * @return
+	 */
+	private static synchronized JedisCluster getJcByFreeJedisCluster(){
+		JedisCluster jc = null;
+		if(freeJcs.size() <= 0){
 			return getJcByPool();
 		}
+		jc = freeJcs.get(0);
+		freeJcs.remove(0);
+		usedConn++;
+		return jc;
 	}
 	
 	/**
@@ -167,6 +186,6 @@ public class RedisClusterPool {
             }  
         };  
 		Timer timer = new Timer();
-		timer.schedule(task, 60 * 1000 * 60 * 1); //每1个小时执行一次 60 * 1000 * 60 * 24
+		timer.schedule(task, 60 * 1000 * 30); //每30分钟执行一次 60 * 1000 * 30
 	}
 }

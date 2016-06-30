@@ -6,7 +6,7 @@ package com.hexun.framework.core.redis;
  *
  */
 public class RedisClusterTest extends Thread{
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		RedisClusterTest test1 = new RedisClusterTest();
 		RedisClusterTest test2 = new RedisClusterTest();
 		RedisClusterTest test3 = new RedisClusterTest();
@@ -47,7 +47,36 @@ public class RedisClusterTest extends Thread{
 		test18.start();
 		test19.start();
 		test20.start();
-	}
+	}*/
+	
+	private static volatile int a;
+	 
+    private synchronized static void incr() {
+        a++;
+    }
+	public static void main(String[] args) throws InterruptedException {
+        int times = 10000;
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < times; i++) {
+            new Thread(new Runnable() {
+ 
+                @Override
+                public void run() {
+                	RedisClusterUtils.getTest(Thread.currentThread().getName()+0);
+                	incr();
+                	//System.out.println(Thread.currentThread().getName() + "------" + RedisClusterUtils.getTest(Thread.currentThread().getName()+0));
+                }
+            }).start();
+        }
+        while (true) {
+            if (a == times) {
+                System.out.println("finished, time:"
+                        + (System.currentTimeMillis() - start));
+                break;
+            }
+            Thread.sleep(100);
+        }
+    }
 
 	@Override
 	public void run() {
@@ -62,7 +91,9 @@ public class RedisClusterTest extends Thread{
 		/*for(int i=0;i<60;i++){
 			RedisClusterUtils.set(Thread.currentThread().getName()+i, Thread.currentThread().getName()+i);
 		}*/
-		System.out.println(Thread.currentThread().getName() + "------" + RedisClusterUtils.getTest(Thread.currentThread().getName()+0));
+		for(int i=0;i<60;i++){
+			System.out.println(Thread.currentThread().getName() + "------" + RedisClusterUtils.getTest(Thread.currentThread().getName()+0));
+		}
 		System.out.println("操作完 当前空闲连接池：" + RedisClusterPool.getFreePoolSize());
 	}
 }

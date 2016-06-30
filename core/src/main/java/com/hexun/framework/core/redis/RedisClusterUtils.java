@@ -23,11 +23,7 @@ public class RedisClusterUtils {
 	 */
 	public static JedisCluster getJc() {
 		JedisCluster jc = null;
-		try {
-			jc = RedisClusterPool.getJcByPool();
-		} catch (MyException e) {
-			e.printStackTrace();
-		}
+		jc = RedisClusterPool.getJcByPool();
 		if(jc == null){
 			return getJc();
 		}
