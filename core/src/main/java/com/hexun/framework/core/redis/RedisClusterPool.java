@@ -7,6 +7,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
@@ -50,6 +57,15 @@ public class RedisClusterPool {
 	 */
 	private static List<JedisCluster> freeJcs = new ArrayList<JedisCluster>();
 	
+	/**
+	 * 当连接池里空闲的连接数小于最小连接数的时候 自动创建一批连接池，自动创建的次数，防止在高并发的情况下创建过多的链接
+	 */
+	private static int countStatic = 150;
+	/**
+	 * 计数，创建过多少次
+	 */
+	private static int count = 0;
+	
 	public static void main(String[] args) {
 		System.out.println(minConn);
 	}
@@ -58,8 +74,9 @@ public class RedisClusterPool {
 	 * 初始化连接池
 	 */
 	static{
-		initPool();
+		//initPool();
 		timeGC();
+		timeCheckFreePool();
 	}
 	
 	/**
@@ -68,13 +85,7 @@ public class RedisClusterPool {
 	private static void initPool(){
 		System.out.println("init JedisClusterPool.......");
 		int createNum = minConn - (freeJcs.size() + usedConn);
-		for(int i=0; i < createNum; i++){
-			try {
-				freeJcs.add(createJc());
-			} catch (MyException e) {
-				e.printStackTrace();
-			}
-		}
+		threadCreate(createNum);
 		System.out.println("init JedisClusterPool end.......");
 	}
 	
@@ -92,6 +103,79 @@ public class RedisClusterPool {
 		
 		return new JedisCluster(jedisClusterNodes);
 	}
+	/**
+	 * 多线程创建对象
+	 * @return
+	 */
+	private static void threadCreate(final int num){
+		System.out.println("-----------------------------pool:" + freeJcs.size()+ "----usedConn" + usedConn + "---------------------");
+		// 创建一个线程池
+		ExecutorService executor = Executors.newCachedThreadPool();
+		CompletionService<JedisCluster> completionService = new ExecutorCompletionService<JedisCluster>(executor);
+		List<Future<JedisCluster>> futures = new ArrayList<Future<JedisCluster>>();
+		
+    	for(int i=0; i<num; i++){
+    		// 执行任务并获取Future对象
+			Future<JedisCluster> future = completionService.submit(new Callable<JedisCluster>() {
+	        	@Override
+				public JedisCluster call() throws Exception {
+	        		JedisCluster jc = null;
+	        		try {
+	        			jc = createJc();
+					} catch (MyException e) {
+						e.printStackTrace();
+					} 
+		 			return jc;
+				}
+	        });
+			futures.add(future);
+    	}
+    	
+    	for(Future<JedisCluster> f : futures){
+    		try {
+				freeJcs.add(f.get(2000, TimeUnit.MILLISECONDS));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+    	}
+	}
+	
+	/**
+	 * 多线程创建对象
+	 * @return
+	 */
+	private static void threadCreateForCheck(final int num){
+		System.out.println("-----------------------------check:freePoolSize:" + freeJcs.size()+ "----usedConn:" + usedConn + "---------------------");
+		// 创建一个线程池
+		ExecutorService executor = Executors.newCachedThreadPool();
+		CompletionService<JedisCluster> completionService = new ExecutorCompletionService<JedisCluster>(executor);
+		List<Future<JedisCluster>> futures = new ArrayList<Future<JedisCluster>>();
+		
+    	for(int i=0; i<num; i++){
+    		// 执行任务并获取Future对象
+			Future<JedisCluster> future = completionService.submit(new Callable<JedisCluster>() {
+	        	@Override
+				public JedisCluster call() throws Exception {
+	        		JedisCluster jc = null;
+	        		try {
+	        			jc = createJc();
+					} catch (MyException e) {
+						e.printStackTrace();
+					} 
+		 			return jc;
+				}
+	        });
+			futures.add(future);
+    	}
+    	
+    	for(Future<JedisCluster> f : futures){
+    		try {
+				freeJcs.add(f.get(2000, TimeUnit.MILLISECONDS));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+    	}
+	}
 	
 	/**
 	 * 从连接池中获取jedisCluster对象
@@ -100,20 +184,32 @@ public class RedisClusterPool {
 	 */
 	public static synchronized JedisCluster getJcByPool(){
 		if(freeJcs.size() > 0){ 					//如果有空闲的链接，直接从连接池里面
+			/*if(freeJcs.size() < minConn && usedConn <= maxConn && count < countStatic){
+				new Thread(new Runnable(){
+		            public void run(){
+		            	count ++;
+		            	threadCreate(createConn);
+		            }
+		        }).start();
+			}*/
 			return getJcByFreeJedisCluster();
 		}else if(freeJcs.size() == 0 && usedConn <= maxConn){ //如果已经存在的线程池小于定义的最大线程池，并且没有空闲线程池的情况下，创建一个
-			try {
-				for(int i=0; i<createConn; i++)
-					freeJcs.add(createJc());
-				
-			} catch (MyException e) {
-				e.printStackTrace();
-			}
+			threadCreate(2);
 			return getJcByFreeJedisCluster();
 		}else{
 			System.out.println("JedisClusterPool full wait!");
-			wait(1);
+			//wait(1);
 			return getJcByFreeJedisCluster();
+		}
+	}
+	
+	/**
+	 * 检查空连接池里面还有多少个链接，不足的时候，自动添加
+	 */
+	private static void checkFreePool(){
+		if(freeJcs.size() < minConn && usedConn <= maxConn && count < countStatic){
+			System.out.println("--------------checkFreePool is undefined!--------------------");
+			threadCreateForCheck(createConn);
 		}
 	}
 	
@@ -172,6 +268,7 @@ public class RedisClusterPool {
 				e.printStackTrace();
 			}
 			freeJcs.remove(0); 			//从链接池删除
+			count = 0;
 			gcPool();
 		}
 	}
@@ -187,5 +284,19 @@ public class RedisClusterPool {
         };  
 		Timer timer = new Timer();
 		timer.schedule(task, 60 * 1000 * 30); //每30分钟执行一次 60 * 1000 * 30
+	}
+	
+	/**
+	 * 定时执行  检查连接池的数量
+	 */
+	private static void timeCheckFreePool(){
+		TimerTask task = new TimerTask() {  
+            @Override  
+            public void run() {  
+            	checkFreePool();
+            }  
+        };  
+		Timer timer = new Timer();
+		timer.schedule(task, 1000,1000); //1秒后开始每个2秒钟执行一次TimerTaskTest中的run()方法。
 	}
 }

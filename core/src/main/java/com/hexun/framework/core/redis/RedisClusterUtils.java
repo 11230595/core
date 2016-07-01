@@ -7,7 +7,6 @@ import java.util.Set;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.SortingParams;
 
-import com.hexun.framework.core.exception.MyException;
 import com.hexun.framework.core.page.Page;
 /**
  * 使用jedis操作redis集群工具类
