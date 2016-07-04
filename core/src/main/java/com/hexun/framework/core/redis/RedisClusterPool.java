@@ -58,13 +58,9 @@ public class RedisClusterPool {
 	private static List<JedisCluster> freeJcs = new ArrayList<JedisCluster>();
 	
 	/**
-	 * 当连接池里空闲的连接数小于最小连接数的时候 自动创建一批连接池，自动创建的次数，防止在高并发的情况下创建过多的链接
+	 * 报警线，当连接数小于该数字的时候，创建一批线程
 	 */
-	private static int countStatic = 150;
-	/**
-	 * 计数，创建过多少次
-	 */
-	private static int count = 0;
+	private static int countStatic = RedisPropertiesUtils.getInt("redis.cluster.warningConn");
 	
 	public static void main(String[] args) {
 		System.out.println(minConn);
@@ -207,8 +203,8 @@ public class RedisClusterPool {
 	 * 检查空连接池里面还有多少个链接，不足的时候，自动添加
 	 */
 	private static void checkFreePool(){
-		if(freeJcs.size() < minConn && usedConn <= maxConn && count < countStatic){
-			System.out.println("--------------checkFreePool is undefined!--------------------");
+		if(freeJcs.size() < countStatic && usedConn <= maxConn){
+			System.out.println("--------------checkFreePool is lack!--------------------");
 			threadCreateForCheck(createConn);
 		}
 	}
@@ -222,6 +218,7 @@ public class RedisClusterPool {
 		if(freeJcs.size() <= 0){
 			return getJcByPool();
 		}
+		
 		jc = freeJcs.get(0);
 		freeJcs.remove(0);
 		usedConn++;
@@ -263,12 +260,11 @@ public class RedisClusterPool {
 		if(freeJcs.size() > minConn){
 			System.out.println("超过最小空闲数量删除多余的连接池");
 			try {
-				freeJcs.get(0).close(); //关闭链接
+				freeJcs.get(0).close();  //关闭链接
+				freeJcs.remove(0);		 //从链接池删除
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			freeJcs.remove(0); 			//从链接池删除
-			count = 0;
 			gcPool();
 		}
 	}
