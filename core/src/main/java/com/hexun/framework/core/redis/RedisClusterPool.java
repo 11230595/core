@@ -24,7 +24,7 @@ import com.hexun.framework.core.properties.RedisPropertiesUtils;
 import com.hexun.framework.core.utils.DateUtils;
 
 /**
- * redis 对象池
+ * redis 对象池连接池
  * @author zhoudong
  *
  */
@@ -63,6 +63,20 @@ public class RedisClusterPool {
 	 * 报警线，当连接数小于该数字的时候，创建一批线程
 	 */
 	private static int countStatic = RedisPropertiesUtils.getInt("redis.cluster.warningConn");
+	
+	/**
+	 * 连接池加1
+	 */
+	private synchronized static void usedConnAdd(){
+		++ usedConn;
+	}
+	
+	/**
+	 * 连接池减1
+	 */
+	private synchronized static void usedConnRemove(){
+		-- usedConn;
+	}
 	
 	public static void main(String[] args) {
 		System.out.println(minConn);
@@ -222,7 +236,7 @@ public class RedisClusterPool {
 		}
 		jc = freeJcs.get(0);
 		freeJcs.remove(0);
-		usedConn++;
+		usedConnAdd();
 		return jc;
 	}
 	
@@ -241,9 +255,14 @@ public class RedisClusterPool {
 	/**
 	 * 将jc对象返回到freeJcpool
 	 */
-	public static void returnJcToPool(JedisCluster jc){
-		freeJcs.add(jc);
-		--usedConn;
+	public static void returnJcToPool(final JedisCluster jc){
+		new Thread(new Runnable(){
+			@Override
+			public void run() {
+				freeJcs.add(jc);
+				usedConnRemove();
+			}
+		}).start();
 	}
 	
 	/**
