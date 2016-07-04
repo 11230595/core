@@ -2,6 +2,7 @@ package com.hexun.framework.core.redis;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,6 +21,7 @@ import redis.clients.jedis.JedisCluster;
 
 import com.hexun.framework.core.exception.MyException;
 import com.hexun.framework.core.properties.RedisPropertiesUtils;
+import com.hexun.framework.core.utils.DateUtils;
 
 /**
  * redis 对象池
@@ -104,7 +106,7 @@ public class RedisClusterPool {
 	 * @return
 	 */
 	private static void threadCreate(final int num){
-		System.out.println("-----------------------------pool:" + freeJcs.size()+ "----usedConn" + usedConn + "---------------------");
+		System.out.println(DateUtils.getDefaultDate() + "-----------------------------pool:" + freeJcs.size()+ "----usedConn" + usedConn + "---------------------");
 		// 创建一个线程池
 		ExecutorService executor = Executors.newCachedThreadPool();
 		CompletionService<JedisCluster> completionService = new ExecutorCompletionService<JedisCluster>(executor);
@@ -129,9 +131,9 @@ public class RedisClusterPool {
     	
     	for(Future<JedisCluster> f : futures){
     		try {
-				freeJcs.add(f.get(2000, TimeUnit.MILLISECONDS));
+				freeJcs.add(f.get(4000, TimeUnit.MILLISECONDS));
 			} catch (Exception e) {
-				e.printStackTrace();
+				System.out.println("--------- create JedisCluster time out! --------");
 			}
     	}
 	}
@@ -141,7 +143,7 @@ public class RedisClusterPool {
 	 * @return
 	 */
 	private static void threadCreateForCheck(final int num){
-		System.out.println("-----------------------------check:freePoolSize:" + freeJcs.size()+ "----usedConn:" + usedConn + "---------------------");
+		System.out.println(DateUtils.getDefaultDate() + "-----------------------------check:freePoolSize:" + freeJcs.size()+ "----usedConn:" + usedConn + "---------------------");
 		// 创建一个线程池
 		ExecutorService executor = Executors.newCachedThreadPool();
 		CompletionService<JedisCluster> completionService = new ExecutorCompletionService<JedisCluster>(executor);
@@ -166,9 +168,9 @@ public class RedisClusterPool {
     	
     	for(Future<JedisCluster> f : futures){
     		try {
-				freeJcs.add(f.get(2000, TimeUnit.MILLISECONDS));
+				freeJcs.add(f.get(4000, TimeUnit.MILLISECONDS));
 			} catch (Exception e) {
-				e.printStackTrace();
+				System.out.println("--------- create JedisCluster time out! --------");
 			}
     	}
 	}
@@ -204,7 +206,7 @@ public class RedisClusterPool {
 	 */
 	private static void checkFreePool(){
 		if(freeJcs.size() < countStatic && usedConn <= maxConn){
-			System.out.println("--------------checkFreePool is lack!--------------------");
+			System.out.println("--------------- checkFreePool is lack!--------------------");
 			threadCreateForCheck(createConn);
 		}
 	}
@@ -218,7 +220,6 @@ public class RedisClusterPool {
 		if(freeJcs.size() <= 0){
 			return getJcByPool();
 		}
-		
 		jc = freeJcs.get(0);
 		freeJcs.remove(0);
 		usedConn++;
@@ -242,7 +243,7 @@ public class RedisClusterPool {
 	 */
 	public static void returnJcToPool(JedisCluster jc){
 		freeJcs.add(jc);
-		usedConn --;
+		--usedConn;
 	}
 	
 	/**
@@ -256,7 +257,7 @@ public class RedisClusterPool {
 	 * 使用递归清理连接池
 	 */
 	private static void gcPool(){
-		System.out.println("递归清理--》当前连接池的数量：" + freeJcs.size());
+		System.out.println(DateUtils.getDefaultDate() + "free pool clear --> now pool count:" + freeJcs.size());
 		if(freeJcs.size() > minConn){
 			System.out.println("超过最小空闲数量删除多余的连接池");
 			try {
@@ -279,7 +280,7 @@ public class RedisClusterPool {
             }  
         };  
 		Timer timer = new Timer();
-		timer.schedule(task, 60 * 1000 * 30); //每30分钟执行一次 60 * 1000 * 30
+		timer.schedule(task, 1000, 60 * 1000 * 30); //1秒以后每30分钟执行一次 60 * 1000 * 30
 	}
 	
 	/**

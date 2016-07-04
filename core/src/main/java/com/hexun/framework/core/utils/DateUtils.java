@@ -14,6 +14,14 @@ import java.util.Map;
  *
  */
 public class DateUtils {
+	/**
+	 * 获取当前日志，采用默认的格式输出
+	 * @return
+	 */
+	public static String getDefaultDate(){
+		return DateToString(new Date(), "yyyy-MM-dd HH:mm:ss");
+	}
+	
 	/** 
      * 获取SimpleDateFormat 
      * @param parttern 日期格式 
