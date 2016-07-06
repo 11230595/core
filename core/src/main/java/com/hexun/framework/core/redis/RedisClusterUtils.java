@@ -13,7 +13,7 @@ import com.hexun.framework.core.page.Page;
  * @author zhoudong
  *
  */
-public class RedisClusterUtils {
+public final class RedisClusterUtils {
 
 	/**
 	 * 获取jedisCluster对象 从连接池获取
@@ -29,8 +29,13 @@ public class RedisClusterUtils {
 		return jc;
 	}
 	
-	public static void returnJcPool(JedisCluster jc){
-		RedisClusterPool.returnJcToPool(jc);
+	public static void returnJcPool(final JedisCluster jc){
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				RedisClusterPool.returnJcToPool(jc);
+			}
+		}).start();
 	}
 	
 

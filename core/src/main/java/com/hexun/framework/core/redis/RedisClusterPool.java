@@ -2,7 +2,6 @@ package com.hexun.framework.core.redis;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,7 +27,7 @@ import com.hexun.framework.core.utils.DateUtils;
  * @author zhoudong
  *
  */
-public class RedisClusterPool {
+public final class RedisClusterPool {
 	/**
 	 * 最小连接数
 	 */
@@ -120,7 +119,7 @@ public class RedisClusterPool {
 	 * @return
 	 */
 	private static void threadCreate(final int num){
-		System.out.println(DateUtils.getDefaultDate() + "-----------------------------pool:" + freeJcs.size()+ "----usedConn" + usedConn + "---------------------");
+		System.out.println(DateUtils.getDefaultDate() + "-----------------------------pool:" + freeJcs.size()+ "----usedConn:" + usedConn + "---------------------");
 		// 创建一个线程池
 		ExecutorService executor = Executors.newCachedThreadPool();
 		CompletionService<JedisCluster> completionService = new ExecutorCompletionService<JedisCluster>(executor);
@@ -145,7 +144,7 @@ public class RedisClusterPool {
     	
     	for(Future<JedisCluster> f : futures){
     		try {
-				freeJcs.add(f.get(4000, TimeUnit.MILLISECONDS));
+				freeJcs.add(f.get(6000, TimeUnit.MILLISECONDS));
 			} catch (Exception e) {
 				System.out.println("--------- create JedisCluster time out! --------");
 			}
@@ -182,7 +181,7 @@ public class RedisClusterPool {
     	
     	for(Future<JedisCluster> f : futures){
     		try {
-				freeJcs.add(f.get(4000, TimeUnit.MILLISECONDS));
+				freeJcs.add(f.get(6000, TimeUnit.MILLISECONDS));
 			} catch (Exception e) {
 				System.out.println("--------- create JedisCluster time out! --------");
 			}
@@ -276,7 +275,7 @@ public class RedisClusterPool {
 	 * 使用递归清理连接池
 	 */
 	private static void gcPool(){
-		System.out.println(DateUtils.getDefaultDate() + "free pool clear --> now pool count:" + freeJcs.size());
+		System.out.println(DateUtils.getDefaultDate() + "--free pool clear --> now pool count:" + freeJcs.size());
 		if(freeJcs.size() > minConn){
 			System.out.println("超过最小空闲数量删除多余的连接池");
 			try {
