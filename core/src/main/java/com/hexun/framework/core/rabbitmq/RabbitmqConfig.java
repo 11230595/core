@@ -13,7 +13,7 @@ import com.rabbitmq.client.ConnectionFactory;
  * @author zhoudong
  *
  */
-public class RabbitmqConfig{
+public final class RabbitmqConfig{
 
 	private static ConnectionFactory factory = null;
 	
