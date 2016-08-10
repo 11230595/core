@@ -81,4 +81,5 @@ public class IDUtils {
 	public static int getRandom() {
 		return (int) (Math.random() * 1000);
 	}
+	
 }

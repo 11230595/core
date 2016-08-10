@@ -17,7 +17,7 @@ import org.apache.commons.io.IOUtils;
  * @author zhoudong
  * 
  */
-public class HTTPUtils {
+public final class HTTPUtils {
 	/**
 	 * 发送get请求
 	 * @author zhoudong
@@ -64,7 +64,7 @@ public class HTTPUtils {
      *            请求参数，请求参数应该是 name1=value1&name2=value2 的形式。
      * @return 所代表远程资源的响应结果
      */
-    public static String sendPost(String url, Map<String, Object> param) {
+    public static String sendPost(String url, Map<?, ?> param) {
         PrintWriter out = null;
         BufferedReader in = null;
         String result = "";
@@ -84,7 +84,7 @@ public class HTTPUtils {
             out = new PrintWriter(conn.getOutputStream());
             
             StringBuilder sb = new StringBuilder();
-            for(Map.Entry<String, Object> entry : param.entrySet()) {
+            for(Map.Entry<?, ?> entry : param.entrySet()) {
             	sb.append(entry.getKey()).append("=").append(entry.getValue()).append("&");
             }
             sb.deleteCharAt(sb.length()-1);
