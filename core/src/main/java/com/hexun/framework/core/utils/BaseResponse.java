@@ -10,7 +10,7 @@ public class BaseResponse {
 	private String respCode;   	//返回码
 	private String respMgs;		//返回信息
 	private String errorMgs;	//错误信息
-	private String result;		//返回结果
+	private Object result;		//返回结果
 	private String charset = "utf-8";		//编码
 	
 	public String getRespCode() {
@@ -31,10 +31,10 @@ public class BaseResponse {
 	public void setErrorMgs(String errorMgs) {
 		this.errorMgs = errorMgs;
 	}
-	public String getResult() {
+	public Object getResult() {
 		return result;
 	}
-	public void setResult(String result) {
+	public void setResult(Object result) {
 		this.result = result;
 	}
 	public String getCharset() {
