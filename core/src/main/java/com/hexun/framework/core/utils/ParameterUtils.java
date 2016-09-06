@@ -36,11 +36,7 @@ public class ParameterUtils {
 	private static String joinParameters(String[] parameters){
 		StringBuilder parameter = new StringBuilder();
 		for(String param : parameters){
-			try {
-				parameter.append(URLEncoder.encode(param, "UTF-8")).append("&");
-			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
-			}
+			parameter.append(param).append("&");
 		}
 		parameter.deleteCharAt(parameter.length()-1);
 		return parameter.toString();
@@ -55,7 +51,11 @@ public class ParameterUtils {
 		String[] strs = new String[map.size()];
 		int i=0;
 		for(Map.Entry<String, String> m : map.entrySet()){
-			strs[i] = m.getKey()+"="+m.getValue();
+			try {
+				strs[i] = m.getKey() + "=" + URLEncoder.encode(m.getValue(), "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
 			i++;
 		}
 		return strs;
