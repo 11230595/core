@@ -55,7 +55,7 @@ public class RedisClusterTest extends Thread{
         a++;
     }
 	public static void main(String[] args) throws InterruptedException {
-        int times = 10000;
+        /*int times = 10000;
         long start = System.currentTimeMillis();
         for (int i = 0; i < times; i++) {
             new Thread(new Runnable() {
@@ -75,7 +75,9 @@ public class RedisClusterTest extends Thread{
                 break;
             }
             Thread.sleep(100);
-        }
+        }*/
+		
+		RedisClusterUtils.del("SERVER_MARK:ceshi5");
     }
 
 	@Override

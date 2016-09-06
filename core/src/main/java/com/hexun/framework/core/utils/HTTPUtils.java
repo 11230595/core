@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.interfaces.RSAKey;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
@@ -147,7 +148,7 @@ public final class HTTPUtils {
 			out.flush();
 			out.close();
 			/* 发送完毕 获取返回流，解析流数据 */
-			BufferedReader rd = new BufferedReader(new InputStreamReader(urlConn.getInputStream(), "GBK"));
+			BufferedReader rd = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
 			StringBuffer sb = new StringBuffer();
 			int ch;
 			while ((ch = rd.read()) > -1) {
@@ -159,7 +160,7 @@ public final class HTTPUtils {
 		} catch (Exception e) {
 			/* 异常处理 */
 			rec_string = "-107";
-			System.out.println(e);
+			e.printStackTrace();
 		} finally {
 			/* 关闭URL连接 */
 			if (urlConn != null) {

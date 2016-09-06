@@ -1,5 +1,6 @@
 package com.hexun.framework.core.utils;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,7 +21,7 @@ import com.hexun.framework.core.constants.Constants;
  */
 public class ParameterUtils {
 	/**
-	 * 生产加密字符串,返回a=b&c=d这样的字符串
+	 * 生成待加密字符串,返回a=b&c=d这样的字符串
 	 * 
 	 * @param map
 	 * @return
@@ -62,16 +63,21 @@ public class ParameterUtils {
 	/**
 	 * 转换map
 	 * @param reqMap
+	 * @param charset 
 	 * @return
 	 */
-	public static Map<String, String> convertMap(Map<String, String[]> reqMap){
+	public static Map<String, String> convertMap(Map<String, String[]> reqMap, String charset){
 		Map<String, String> tempMap = new HashMap<String, String>();
         Set<Entry<String, String[]>> set = reqMap.entrySet();  
         Iterator<Entry<String, String[]>> it = set.iterator();  
         while (it.hasNext()) {  
             Entry<String, String[]> entry = it.next();  
             for (String str : entry.getValue()) {  
-                tempMap.put(entry.getKey(), str);
+                try {
+					tempMap.put(entry.getKey(), new String(str.getBytes("UTF-8"), charset));
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+				}
             }  
         } 
         return tempMap;
