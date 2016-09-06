@@ -1,6 +1,7 @@
 package com.hexun.framework.core.utils;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,15 +35,14 @@ public class ParameterUtils {
 	
 	private static String joinParameters(String[] parameters){
 		StringBuilder parameter = new StringBuilder();
-		int i=0;
 		for(String param : parameters){
-			i++;
-			if(i<parameters.length){
-				parameter.append(param).append("&");
-			}else {
-				parameter.append(param);
+			try {
+				parameter.append(URLEncoder.encode(param, "UTF-8")).append("&");
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
 			}
 		}
+		parameter.deleteCharAt(parameter.length()-1);
 		return parameter.toString();
 	}
 	
@@ -63,10 +63,9 @@ public class ParameterUtils {
 	/**
 	 * 转换map
 	 * @param reqMap
-	 * @param charset 
 	 * @return
 	 */
-	public static Map<String, String> convertMap(Map<String, String[]> reqMap, String charset){
+	public static Map<String, String> convertMap(Map<String, String[]> reqMap,String charset){
 		Map<String, String> tempMap = new HashMap<String, String>();
         Set<Entry<String, String[]>> set = reqMap.entrySet();  
         Iterator<Entry<String, String[]>> it = set.iterator();  
@@ -74,10 +73,11 @@ public class ParameterUtils {
             Entry<String, String[]> entry = it.next();  
             for (String str : entry.getValue()) {  
                 try {
-					tempMap.put(entry.getKey(), new String(str.getBytes("UTF-8"), charset));
+					tempMap.put(entry.getKey(), new String(str.getBytes(charset),"UTF-8"));
 				} catch (UnsupportedEncodingException e) {
 					e.printStackTrace();
 				}
+            	//tempMap.put(entry.getKey(), str);
             }  
         } 
         return tempMap;
