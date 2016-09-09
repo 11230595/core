@@ -1,5 +1,6 @@
 package com.hexun.framework.core.utils;
 
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.FieldPosition;
 import java.text.Format;
@@ -19,19 +20,20 @@ public class IDUtils {
 	/** .log */
     private static final Logger logger = LoggerFactory.getLogger(IDUtils.class);
  
-    /** The FieldPosition. */
-    private static final FieldPosition HELPER_POSITION = new FieldPosition(0);
+    /** 偏移位置. */
+    private static final FieldPosition HELPER_POSITION = new FieldPosition(DateFormat.DATE_FIELD);
  
-    /** This Format for format the data to special format. */
-    private final static Format dateFormat = new SimpleDateFormat("MMddHHmmssS");
+    /** 日期格式. */
+    private final static Format dateFormat = new SimpleDateFormat("yyMMddHHmmssS");
  
-    /** This Format for format the number to special format. */
-    private final static NumberFormat numberFormat = new DecimalFormat("0000");
+    /** 数字格式，在日期后做俩位的自增. */
+    private final static NumberFormat numberFormat = new DecimalFormat("00");
  
-    /** This int is the sequence number ,the default value is 0. */
+    /** 序列开始位. */
     private static int seq = 0;
- 
-    private static final int MAX = 9999;
+    
+    /** 序列最大位 */
+    private static final int MAX = 99;
  
     /**
      * 时间格式生成序列
@@ -44,7 +46,6 @@ public class IDUtils {
         StringBuffer sb = new StringBuffer();
  
         dateFormat.format(rightNow.getTime(), sb, HELPER_POSITION);
- 
         numberFormat.format(seq, sb, HELPER_POSITION);
  
         if (seq == MAX) {
@@ -68,8 +69,14 @@ public class IDUtils {
 	}
 	
 	public static void main(String[] args) {
-		for (int i = 0; i < 50; i++) {
-			System.out.println(getId());
+		for (int i = 0; i < 200; i++) {
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					System.out.println(getId());
+				}
+			}).start();
+			
 		}
 	}
 	

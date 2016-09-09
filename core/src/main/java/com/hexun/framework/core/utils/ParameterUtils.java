@@ -32,6 +32,17 @@ public class ParameterUtils {
 		Arrays.sort(params);
 		return joinParameters(params);
 	}
+	/**
+	 * 生成待加密字符串,返回a=b&c=d这样的字符串
+	 * *****不encode中文
+	 * @param map
+	 * @return
+	 */
+	public static String createSignText(Map<String, String> map, boolean b) {
+		String[] params = map2StringArray(map,b);
+		Arrays.sort(params);
+		return joinParameters(params);
+	}
 	
 	private static String joinParameters(String[] parameters){
 		StringBuilder parameter = new StringBuilder();
@@ -56,6 +67,20 @@ public class ParameterUtils {
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
 			}
+			i++;
+		}
+		return strs;
+	}
+	/**
+	 * map转数组,不使用encode
+	 * @param map
+	 * @return
+	 */
+	private static String[] map2StringArray(Map<String, String> map, boolean b) {
+		String[] strs = new String[map.size()];
+		int i=0;
+		for(Map.Entry<String, String> m : map.entrySet()){
+			strs[i] = m.getKey() + "=" + m.getValue();
 			i++;
 		}
 		return strs;
