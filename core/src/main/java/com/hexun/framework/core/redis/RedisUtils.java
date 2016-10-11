@@ -11,6 +11,19 @@ import com.hexun.framework.core.page.Page;
 /**
  * redis 操作工具类
  * 
+ * 使用该工具类操作redis时 需要在项目的Resource目录下新建  redis.properties 文件
+ * 
+ * 内容如下：
+ * ----------------------------
+ * #最大线程数
+ * redis.maxTotal=500
+ * 
+ * #地址
+ * redis.url=10.4.12.147
+ * 
+ * #端口号
+ * redis.port=6379
+ * ----------------------------
  * @author zhoudong
  *
  */
@@ -68,7 +81,7 @@ public class RedisUtils extends RedisList{
 	}
 	
 	/**
-	 * 更新数据
+	 * 更新数据，底层调用set方法
 	 * @param key
 	 * @param value
 	 * @return Status code reply
@@ -78,7 +91,7 @@ public class RedisUtils extends RedisList{
 	}
 	
 	/**
-	 * 删除数据
+	 * 删除数据，可一次传入多个key
 	 * 
 	 * @param key
 	 * @return
@@ -174,7 +187,7 @@ public class RedisUtils extends RedisList{
 	
 	/**
 	 * 同时获取多个key对应的value
-	 * @return Status code reply
+	 * @return 返回List<String>
 	 */
 	public static List<String> mget(String... keys) {
 		JedisPool pool = null;

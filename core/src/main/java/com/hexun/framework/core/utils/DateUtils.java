@@ -15,7 +15,7 @@ import java.util.Map;
  */
 public class DateUtils {
 	/**
-	 * 获取当前日志，采用默认的格式输出
+	 * 获取当前日期，输出格式yyyy-MM-dd HH:mm:ss
 	 * @return
 	 */
 	public static String getDefaultDate(){

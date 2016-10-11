@@ -4,8 +4,8 @@ import com.hexun.framework.core.mogodb.MongoDBUtils;
 
 /**
  * 
- * @author 初始化mongoDB
- *
+ * @author zhoudong
+ * 初始化mongoDB
  */
 public class MongoInit {
 	public static MongoDBUtils mongoDBUtils = null;

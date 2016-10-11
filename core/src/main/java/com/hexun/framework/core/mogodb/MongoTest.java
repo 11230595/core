@@ -10,7 +10,7 @@ public class MongoTest {
 	 * mongoDB工具类的简单操作
 	 * 1、在项目的resources文件夹中添加mongo.properties
 	 * 2、引入core-0.0.1-SNAPSHOT.jar
-	 * 3、可以写个工具类初始化mongoDB链接，如下面的方式（MongoInit.mongoDBUtils），也可以用的时候（MongoDBUtils mongoDBUtils = new MongoDBUtils()）
+	 * 3、可以写个工具类初始化mongoDB链接，如下面的方式（MongoInit.mongoDBUtils，在core中已经封装），也可以用的时候（MongoDBUtils mongoDBUtils = new MongoDBUtils()）
 	 * 4、具体封装的代码，详见core项目，还有更多方法，比如获取list，update等等
 	 * 5、本例返回以Object接收
 	 * 6、访问路径：http://localhost:8080/personalcms/test/mongo1.do?pageNo=1&pageSize=10&likeKey=phone&likeValue=188888888881&key=test0
@@ -65,7 +65,8 @@ public class MongoTest {
 	
 	
 	public static void main(String[] args) {
-		MongoDBUtils mongoDBUtils = new MongoDBUtils();
+		//MongoDBUtils mongoDBUtils = new MongoDBUtils();
+		MongoInit.mongoDBUtils.findOne("", "key");
 	}
 	
 }
